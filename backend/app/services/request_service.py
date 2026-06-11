@@ -10,28 +10,37 @@ from app.models.ai_prediction import AIPrediction
 from app.models.request import Request
 from app.models.service import Service
 
+from app.services.priority_engine import (
+    PriorityResult,
+    compute_priority_result,
+)
 
-def compute_priority_and_wait(*, service: Service | None, is_urgent: bool, description: str) -> tuple[str, float, float]:
-    """Deterministic placeholder logic until full AI wiring is done."""
 
-    base = float(service.default_priority_score) if service else 3.0
+def compute_priority_and_wait(
+    *,
+    service: Service | None,
+    is_urgent: bool,
+    description: str,
+    predicted_category: str | None,
+) -> tuple[str, float, float]:
+    """Phase 7 priority engine.
 
-    score = base + (2.0 if is_urgent else 0.0)
+    - Uses capstone priority rules (based on predicted_category + is_urgent)
+    - Produces: priority_level, priority_score, predicted_wait_minutes
 
-    score += min(len(description) / 500.0, 1.0)
-
-    if score >= 4.5:
-        priority = "High"
-    elif score >= 3.5:
-        priority = "Medium"
-    else:
-        priority = "Low"
+    Note: we still accept `description` for potential future aging/rich rules.
+    """
 
     avg = float(service.average_processing_time_minutes) if service else 5.0
-    factor = {"High": 0.6, "Medium": 1.0, "Low": 1.4}[priority]
-    predicted_wait = avg * factor
+    result: PriorityResult = compute_priority_result(
+        average_processing_time_minutes=avg,
+        predicted_category=predicted_category,
+        is_urgent=is_urgent,
+    )
+    return result.priority_level, result.priority_score, result.predicted_wait_minutes
 
-    return priority, score, predicted_wait
+
+
 
 
 def create_request(db: Session, *, payload: "RequestCreateDTO") -> dict:
