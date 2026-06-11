@@ -5,9 +5,11 @@ from app.database.init_db import init_db
 from app.seed.seed_data import seed_data
 
 from app.api.requests import router as requests_router
+from app.api.auth import router as auth_router
 
 
 app = FastAPI(title="TVET AI Queue System")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,6 +27,7 @@ def startup() -> None:
     seed_data()
 
 
+app.include_router(auth_router)
 app.include_router(requests_router)
 
 
@@ -34,3 +37,4 @@ def root():
     return {
         "message": "TVET AI Queue System Backend is running"
     }
+
