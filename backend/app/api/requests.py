@@ -49,20 +49,20 @@ def create_request(payload: RequestCreate):
         if not service:
             raise HTTPException(status_code=400, detail="Unknown service_type")
 
-        base = float(service.default_priority_score) if service else 3.0
-        score = base + (2.0 if payload.is_urgent else 0.0)
-        score += min(len(payload.description) / 500.0, 1.0)
-
-        if score >= 4.5:
-            priority = "High"
-        elif score >= 3.5:
-            priority = "Medium"
-        else:
-            priority = "Low"
+        # Phase 7 priority engine (rules-based for now)
+        from app.services.priority_engine import compute_priority_result
 
         avg = float(service.average_processing_time_minutes) if service else 5.0
-        factor = {"High": 0.6, "Medium": 1.0, "Low": 1.4}[priority]
-        predicted_wait = avg * factor
+        priority_result = compute_priority_result(
+            average_processing_time_minutes=avg,
+            predicted_category=None,
+            is_urgent=payload.is_urgent,
+        )
+
+        priority = priority_result.priority_level
+        score = priority_result.priority_score
+        predicted_wait = priority_result.predicted_wait_minutes
+
 
         request_id = f"REQ-{__import__('datetime').datetime.utcnow().strftime('%Y')}-{__import__('uuid').uuid4().hex[:6].upper()}"
 
