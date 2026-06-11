@@ -1,79 +1,70 @@
-from datetime import datetime
-import uuid
+from __future__ import annotations
+
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
-
 from sqlalchemy.orm import Session
 
 from app.database.init_db import init_db
 from app.database.session import SessionLocal
+from app.schemas.request import RequestCreate, RequestResponse, RequestUpdate
+
 from app.models.ai_prediction import AIPrediction
 from app.models.request import Request
-from app.models.service import Service
-
 
 router = APIRouter(prefix="", tags=["requests"])
 
 
-class CreateRequestBody(BaseModel):
-    service_type: str = Field(..., min_length=1)
-    description: str = Field(..., min_length=10)
-    is_urgent: bool = False
-    student_name: str | None = ""
+def get_db() -> Session:
+    db = SessionLocal()
+    try:
+        return db
+    finally:
+        # NOTE: FastAPI will call this dependency per-request; closing after return is safe
+        # only if using context manager pattern. For simplicity we manage in endpoints.
+        pass
 
 
-def _compute_priority_and_wait(*, service: Service | None, is_urgent: bool, description: str) -> tuple[str, float, float]:
-    """Minimal deterministic placeholder logic until full AI wiring is done.
-
-    Returns: (priority_level, priority_score, predicted_wait_minutes)
-    """
-    # Use service default priority score as base.
-    base = float(service.default_priority_score) if service else 3.0
-
-    # Urgent bumps priority score.
-    score = base + (2.0 if is_urgent else 0.0)
-
-    # Description length adds slight signal (still deterministic).
-    score += min(len(description) / 500.0, 1.0)
-
-    if score >= 4.5:
-        priority = "High"
-    elif score >= 3.5:
-        priority = "Medium"
-    else:
-        priority = "Low"
-
-    # Predicted wait: map priority inversely + service average time.
-    avg = float(service.average_processing_time_minutes) if service else 5.0
-    factor = {"High": 0.6, "Medium": 1.0, "Low": 1.4}[priority]
-    predicted_wait = avg * factor
-    return priority, score, predicted_wait
-
-
-@router.post("/requests")
-def create_request(payload: CreateRequestBody):
-    # Ensure DB tables exist.
+@router.post("/requests", response_model=RequestResponse)
+def create_request(payload: RequestCreate):
     init_db()
 
     db: Session = SessionLocal()
     try:
-        service = db.query(Service).filter(Service.service_id == payload.service_type).first()
+        # Resolve service
+        # For now, keep the existing placeholder logic by deriving priority from service defaults.
+        # We avoid importing the whole older inline logic here; instead we reuse existing fields
+        # computed at insert time from stored service/service_id.
+        # Since current DB schema doesn't include service_id name mapping here, we reproduce
+        # the earlier deterministic placeholder by looking up service via relationship-free query.
 
+        # Import locally to avoid circular imports during startup
+        from app.models.service import Service
+
+        service: Service | None = (
+            db.query(Service).filter(Service.service_id == payload.service_type).first()
+        )
         if not service:
-            # Allow service_name as fallback for early dev.
             service = db.query(Service).filter(Service.service_name == payload.service_type).first()
-
         if not service:
             raise HTTPException(status_code=400, detail="Unknown service_type")
 
-        priority, priority_score, predicted_wait = _compute_priority_and_wait(
-            service=service,
-            is_urgent=payload.is_urgent,
-            description=payload.description,
-        )
+        base = float(service.default_priority_score) if service else 3.0
+        score = base + (2.0 if payload.is_urgent else 0.0)
+        score += min(len(payload.description) / 500.0, 1.0)
 
-        request_id = f"REQ-{datetime.utcnow().strftime('%Y')}-{uuid.uuid4().hex[:6].upper()}"
+        if score >= 4.5:
+            priority = "High"
+        elif score >= 3.5:
+            priority = "Medium"
+        else:
+            priority = "Low"
+
+        avg = float(service.average_processing_time_minutes) if service else 5.0
+        factor = {"High": 0.6, "Medium": 1.0, "Low": 1.4}[priority]
+        predicted_wait = avg * factor
+
+        request_id = f"REQ-{__import__('datetime').datetime.utcnow().strftime('%Y')}-{__import__('uuid').uuid4().hex[:6].upper()}"
 
         req = Request(
             request_id=request_id,
@@ -81,14 +72,13 @@ def create_request(payload: CreateRequestBody):
             service_type=service.service_id,
             description=payload.description,
             priority_level=priority,
-            priority_score=priority_score,
+            priority_score=score,
             predicted_wait_minutes=predicted_wait,
         )
 
         db.add(req)
-        db.flush()  # get req.id
+        db.flush()
 
-        # Create AI prediction record (placeholder until ML integration).
         ai = AIPrediction(
             request_id=req.id,
             category=service.service_name,
@@ -98,8 +88,6 @@ def create_request(payload: CreateRequestBody):
         )
         db.add(ai)
 
-        # Queue position: basic approximation.
-        # Future: replace with actual priority queue ordering.
         queue_position = (
             db.query(Request)
             .filter(Request.id <= req.id)
@@ -109,12 +97,102 @@ def create_request(payload: CreateRequestBody):
 
         db.commit()
 
-        return {
-            "request_id": req.request_id,
-            "priority": req.priority_level,
-            "queue_position": queue_position,
-            "predicted_wait_minutes": req.predicted_wait_minutes,
-        }
+        return RequestResponse(
+            request_id=req.request_id,
+            student_name=req.student_name,
+            service_type=req.service_type,
+            description=req.description,
+            priority_level=req.priority_level,
+            priority_score=float(req.priority_score),
+            predicted_wait_minutes=float(req.predicted_wait_minutes),
+            queue_position=queue_position,
+            status=None,
+        )
+    finally:
+        db.close()
+
+
+@router.get("/requests", response_model=list[RequestResponse])
+def list_requests():
+    init_db()
+    db: Session = SessionLocal()
+    try:
+        rows = db.query(Request).order_by(Request.id.desc()).all()
+        result: list[RequestResponse] = []
+        for req in rows:
+            # For now queue_position is optional; set to None.
+            result.append(
+                RequestResponse(
+                    request_id=req.request_id,
+                    student_name=req.student_name,
+                    service_type=req.service_type,
+                    description=req.description,
+                    priority_level=req.priority_level,
+                    priority_score=float(req.priority_score),
+                    predicted_wait_minutes=float(req.predicted_wait_minutes),
+                    queue_position=None,
+                    status=None,
+                )
+            )
+        return result
+    finally:
+        db.close()
+
+
+@router.get("/requests/{request_id}", response_model=RequestResponse)
+def get_request(request_id: str):
+    init_db()
+    db: Session = SessionLocal()
+    try:
+        req: Request | None = db.query(Request).filter(Request.request_id == request_id).first()
+        if not req:
+            raise HTTPException(status_code=404, detail="Request not found")
+
+        return RequestResponse(
+            request_id=req.request_id,
+            student_name=req.student_name,
+            service_type=req.service_type,
+            description=req.description,
+            priority_level=req.priority_level,
+            priority_score=float(req.priority_score),
+            predicted_wait_minutes=float(req.predicted_wait_minutes),
+            queue_position=None,
+            status=None,
+        )
+    finally:
+        db.close()
+
+
+@router.put("/requests/{request_id}", response_model=RequestResponse)
+def update_request(request_id: str, payload: RequestUpdate):
+    init_db()
+    db: Session = SessionLocal()
+    try:
+        req: Request | None = db.query(Request).filter(Request.request_id == request_id).first()
+        if not req:
+            raise HTTPException(status_code=404, detail="Request not found")
+
+        if payload.description is not None:
+            req.description = payload.description
+        if payload.priority_level is not None:
+            req.priority_level = payload.priority_level
+
+        # If priority_level changed, recompute score/wait deterministically could be added later.
+
+        db.commit()
+        db.refresh(req)
+
+        return RequestResponse(
+            request_id=req.request_id,
+            student_name=req.student_name,
+            service_type=req.service_type,
+            description=req.description,
+            priority_level=req.priority_level,
+            priority_score=float(req.priority_score),
+            predicted_wait_minutes=float(req.predicted_wait_minutes),
+            queue_position=None,
+            status=None,
+        )
     finally:
         db.close()
 
