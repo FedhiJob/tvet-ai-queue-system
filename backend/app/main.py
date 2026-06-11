@@ -6,6 +6,8 @@ from app.seed.seed_data import seed_data
 
 from app.api.requests import router as requests_router
 from app.api.auth import router as auth_router
+from app.api.ai import router as ai_router
+
 
 
 app = FastAPI(title="TVET AI Queue System")
