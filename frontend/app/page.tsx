@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
+export const metadata = { title: "TVET AI Queue System" };
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A]">
       <main className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
         {/* Top navigation */}
         <header className="flex items-center justify-between">
@@ -45,21 +47,20 @@ export default function Home() {
         <section className="mt-10">
           <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
             <div>
-              <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                In 10 seconds you’ll know: what it is, who it’s for, and how to start.
+              <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#0F172A] ring-1 ring-[#E2E8F0]">
+                AI-Enabled Administrative Workflow Platform
               </p>
 
-              <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-                AI-Powered Registrar Workflow
+              <h1 className="mt-4 text-4xl font-bold tracking-tight text-[#0F172A] sm:text-5xl">
+                Queue Management. Appointment Scheduling. Decision Support.
               </h1>
 
-              <h2 className="mt-3 text-xl font-semibold text-slate-900">
-                AI-Enabled Queue and Scheduling for TVET Registrar Services
+              <h2 className="mt-3 text-xl font-semibold text-[#0F172A]">
+                Trust • Authority • Efficiency • Intelligence • Predictability
               </h2>
 
-              <p className="mt-4 max-w-xl text-slate-600">
-                Reduce waiting times. Automatically classify requests, prioritize urgent cases,
-                predict expected wait time, and schedule appointments for students and registrar staff.
+              <p className="mt-4 max-w-xl text-[#475569]">
+                Reduce waiting time with AI classification, priority queue management, and predictable scheduling for TVET registrar services.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
@@ -78,22 +79,22 @@ export default function Home() {
               </div>
 
               <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                  <p className="text-sm font-semibold text-slate-900">Problem</p>
-                  <ul className="mt-2 space-y-1 text-sm text-slate-600">
-                    <li>Long waiting lines</li>
-                    <li>Manual request handling</li>
-                    <li>No prioritization</li>
-                    <li>Unpredictable appointments</li>
+                <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
+                  <p className="text-sm font-semibold text-[#0F172A]">What institutions face</p>
+                  <ul className="mt-2 space-y-1 text-sm text-[#475569]">
+                    <li>Unclear priority and workload</li>
+                    <li>Long and unpredictable waiting times</li>
+                    <li>Manual, inconsistent processing</li>
+                    <li>Appointment schedules that don’t match reality</li>
                   </ul>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                  <p className="text-sm font-semibold text-slate-900">Solution (AI)</p>
-                  <ul className="mt-2 space-y-1 text-sm text-slate-600">
-                    <li>AI request classification</li>
-                    <li>Priority queue management</li>
-                    <li>Smart appointment scheduling</li>
-                    <li>Waiting-time prediction</li>
+                <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
+                  <p className="text-sm font-semibold text-[#0F172A]">How the platform responds</p>
+                  <ul className="mt-2 space-y-1 text-sm text-[#475569]">
+                    <li>AI classification for service routing</li>
+                    <li>Priority queue management for urgent cases</li>
+                    <li>Predictable scheduling for appointment assignment</li>
+                    <li>Wait-time prediction for decision support</li>
                   </ul>
                 </div>
               </div>
