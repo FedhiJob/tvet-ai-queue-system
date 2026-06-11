@@ -8,6 +8,7 @@ from app.api.requests import router as requests_router
 from app.api.auth import router as auth_router
 from app.api.ai import router as ai_router
 from app.api.predictions import router as predictions_router
+from app.api.predict_queue import router as predict_queue_router
 
 
 
@@ -33,6 +34,8 @@ def startup() -> None:
 app.include_router(auth_router)
 app.include_router(requests_router)
 app.include_router(predictions_router)
+app.include_router(predict_queue_router)
+
 
 
 @app.get("/")
