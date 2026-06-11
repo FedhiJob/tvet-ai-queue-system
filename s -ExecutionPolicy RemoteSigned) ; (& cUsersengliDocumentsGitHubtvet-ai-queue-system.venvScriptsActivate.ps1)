@@ -1,0 +1,37 @@
+[1mdiff --git a/backend/app/main.py b/backend/app/main.py[m
+[1mindex 7ee5eb0..1e14a48 100644[m
+[1m--- a/backend/app/main.py[m
+[1m+++ b/backend/app/main.py[m
+[36m@@ -1,6 +1,10 @@[m
+ from fastapi import FastAPI[m
+ from fastapi.middleware.cors import CORSMiddleware[m
+ [m
+[32m+[m[32mfrom app.database.init_db import init_db[m
+[32m+[m[32mfrom app.seed.seed_data import seed_data[m
+[32m+[m
+[32m+[m
+ app = FastAPI(title="TVET AI Queue System")[m
+ [m
+ app.add_middleware([m
+[36m@@ -11,8 +15,17 @@[m [mapp.add_middleware([m
+     allow_headers=["*"],[m
+ )[m
+ [m
+[32m+[m
+[32m+[m[32m@app.on_event("startup")[m
+[32m+[m[32mdef on_startup() -> None:[m
+[32m+[m[32m    # Create tables if they don't exist yet.[m
+[32m+[m[32m    init_db()[m
+[32m+[m[32m    # Seed demo data.[m
+[32m+[m[32m    seed_data()[m
+[32m+[m
+[32m+[m
+[32m+[m
+ @app.get("/")[m
+ def root():[m
+[31m-    return {[m
+[31m-        "message": "TVET AI Queue System Backend is running"[m
+[31m-    }[m
+\ No newline at end of file[m
+[32m+[m[32m    return {"message": "TVET AI Queue System Backend is running"}[m
+[41m+[m
