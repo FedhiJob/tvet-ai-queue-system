@@ -4,14 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { createRequest } from "@/app/services/request.service";
-import type { CreateRequestDto } from "@/app/types/request";
-
-type Priority = "High" | "Medium" | "Low";
+import type { CreateRequestDto, CreateRequestResponse } from "@/app/types/request";
 
 function StatusPill({
   priority,
 }: {
-  priority: Priority;
+  priority: "high" | "medium" | "low" | string;
 }) {
   const cls =
     priority === "High"
@@ -40,15 +38,7 @@ export default function RequestFormCard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [result, setResult] = useState<
-    | null
-    | {
-        request_id: string;
-        priority: Priority;
-        queue_position: number;
-        predicted_wait_minutes: number;
-      }
-  >(null);
+  const [result, setResult] = useState<CreateRequestResponse | null>(null);
 
   const canSubmit = form.service_type.trim().length > 0 && form.description.trim().length >= 10;
 

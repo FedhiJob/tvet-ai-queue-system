@@ -1,22 +1,10 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
-export type Priority = "High" | "Medium" | "Low";
+import type { CreateRequestDto, CreateRequestResponse, ListRequestItem } from "@/app/types/request";
 
-export type CreateRequestDto = {
-  service_type: string;
-  description: string;
-  is_urgent: boolean;
-  student_name?: string;
-};
-
-export type CreateRequestResponse = {
-  request_id: string;
-  priority: Priority;
-  queue_position: number;
-  predicted_wait_minutes: number;
-};
-
-export async function createRequest(payload: CreateRequestDto): Promise<CreateRequestResponse> {
+export async function createRequest(
+  payload: CreateRequestDto
+): Promise<CreateRequestResponse> {
   const res = await fetch(`${API_BASE_URL}/requests`, {
     method: "POST",
     headers: {
@@ -40,18 +28,6 @@ export async function createRequest(payload: CreateRequestDto): Promise<CreateRe
   return (await res.json()) as CreateRequestResponse;
 }
 
-export type ListRequestItem = {
-  request_id: string;
-  student_name: string;
-  service_type: string;
-  description: string;
-  priority_level: string;
-  priority_score: number;
-  predicted_wait_minutes: number;
-  queue_position?: number | null;
-  status?: string | null;
-};
-
 export async function listRequests(): Promise<ListRequestItem[]> {
   const res = await fetch(`${API_BASE_URL}/requests`, {
     method: "GET",
@@ -74,5 +50,4 @@ export async function listRequests(): Promise<ListRequestItem[]> {
 
   return (await res.json()) as ListRequestItem[];
 }
-
 
