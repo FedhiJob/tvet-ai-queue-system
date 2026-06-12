@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black px-4 py-10 flex items-center justify-center">
@@ -34,17 +32,8 @@ export default function LoginPage() {
         </div>
 
         <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
-          No auth wiring yet. This is a visual placeholder for the upcoming auth service + context.
+          Sign in to submit requests and track your queue.
         </p>
-
-        <div className="mt-6">
-          <Link
-            href="/"
-            className="text-sm text-zinc-700 dark:text-zinc-300 hover:underline"
-          >
-            Back to home
-          </Link>
-        </div>
       </div>
     </div>
   );
