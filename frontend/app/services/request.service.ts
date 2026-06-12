@@ -40,3 +40,39 @@ export async function createRequest(payload: CreateRequestDto): Promise<CreateRe
   return (await res.json()) as CreateRequestResponse;
 }
 
+export type ListRequestItem = {
+  request_id: string;
+  student_name: string;
+  service_type: string;
+  description: string;
+  priority_level: string;
+  priority_score: number;
+  predicted_wait_minutes: number;
+  queue_position?: number | null;
+  status?: string | null;
+};
+
+export async function listRequests(): Promise<ListRequestItem[]> {
+  const res = await fetch(`${API_BASE_URL}/requests`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    let detail: string | undefined;
+    try {
+      const json = await res.json();
+      detail = json?.detail;
+    } catch {
+      // ignore
+    }
+    throw new Error(detail ?? text ?? `Requests fetch failed (${res.status})`);
+  }
+
+  return (await res.json()) as ListRequestItem[];
+}
+
+
