@@ -29,7 +29,7 @@ export default function Home() {
 
           <nav className="flex items-center gap-3">
             <Link
-              href="/requests/new"
+              href="/login"
               className="text-sm font-medium text-slate-700 hover:text-slate-900"
             >
               Login
