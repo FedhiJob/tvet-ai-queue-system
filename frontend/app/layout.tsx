@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { AuthProvider } from "@/app/providers/AuthProvider";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -17,6 +19,8 @@ export const metadata: Metadata = {
   description: "AI-enabled administrative workflow platform for queue management and appointment scheduling.",
 };
 
+import { AuthProvider } from "@/app/providers/AuthProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +31,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }
+
