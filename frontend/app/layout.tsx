@@ -16,10 +16,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "TVET AI Queue System",
-  description: "AI-enabled administrative workflow platform for queue management and appointment scheduling.",
+  description:
+    "AI-enabled administrative workflow platform for queue management and appointment scheduling.",
 };
-
-import { AuthProvider } from "@/app/providers/AuthProvider";
 
 export default function RootLayout({
   children,
