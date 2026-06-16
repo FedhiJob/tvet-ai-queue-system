@@ -35,6 +35,13 @@ export default function Home() {
               Login
             </Link>
             <Link
+              href="/register"
+              className="text-sm font-medium text-slate-700 hover:text-slate-900"
+            >
+              Sign up
+            </Link>
+
+            <Link
               href="/requests/new"
               className="inline-flex h-10 items-center justify-center rounded-full bg-black px-5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
             >
@@ -92,8 +99,8 @@ export default function Home() {
                   <p className="text-sm font-semibold text-[#0F172A]">How the platform responds</p>
                   <ul className="mt-2 space-y-1 text-sm text-[#475569]">
                     <li>AI classification for service routing</li>
-                    <li>Priority queue management for urgent cases</li>
-                    <li>Predictable scheduling for appointment assignment</li>
+                    <li>Priority queue management for urgent case</li>
+                    <li>Predictable scheduling for appointment assignments</li>
                     <li>Wait-time prediction for decision support</li>
                   </ul>
                 </div>

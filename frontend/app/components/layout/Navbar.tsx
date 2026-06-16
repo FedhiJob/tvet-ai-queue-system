@@ -20,6 +20,12 @@ export default function Navbar() {
         </Link>
 
         <nav className="flex items-center gap-3">
+          <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-slate-900">
+            Login
+          </Link>
+          <Link href="/register" className="text-sm font-medium text-slate-700 hover:text-slate-900">
+            Sign up
+          </Link>
           <Link
             href="/requests/new"
             className="rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
@@ -27,6 +33,7 @@ export default function Navbar() {
             Submit Request
           </Link>
         </nav>
+
       </div>
     </header>
   );

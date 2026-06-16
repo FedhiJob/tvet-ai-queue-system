@@ -157,7 +157,7 @@ export default function RequestFormCard() {
               }}
               className="text-sm font-semibold text-[#0F172A] hover:text-[#2563EB]"
             >
-              Reset
+              Clear
             </button>
           </div>
         </form>
@@ -186,7 +186,7 @@ export default function RequestFormCard() {
           <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
             <p className="text-sm font-semibold text-[#0F172A]">Next Steps</p>
             <ul className="mt-2 list-disc pl-5 text-sm text-[#475569]">
-              <li>Monitor your request status in the Requests page.</li>
+              <li>Manage your request status in the Requests page.</li>
               <li>Arrive at the scheduled appointment time (15-minute slots).</li>
             </ul>
           </div>
